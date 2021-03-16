@@ -3,4 +3,6 @@
     <string name="enter_phone_number">Enter Phone Number</string>
     <string name="enter_the_code">Enter the code</string>
     <string name="send_verification_code">SEND VERIFICATION CODE</string>
+    <string name="logout">Logout</string>
+    <string name="ButtonChangeOnCodeSent">Verify Code</string>
 </resources>

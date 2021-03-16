@@ -38,7 +38,7 @@ dependencies {
     /**
      * these two lines are added gradle dependencies to integrate firebase to this project
      */
-    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-core:18.0.2'
     implementation 'com.google.firebase:firebase-auth:20.0.3'
 
 
@@ -46,3 +46,5 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
+
+apply plugin: 'com.google.gms.google-services'

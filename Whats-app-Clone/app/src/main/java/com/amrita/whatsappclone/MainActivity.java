@@ -28,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
      * Variables are to be created for All the views that are on the activity main . xml screen
      */
     private EditText phone_number;
+    private String verification_id;
+    private EditText code;
+    private Button verify;
 
     //call back instance created here
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mcallbacks;
@@ -42,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
          */
         FirebaseApp.initializeApp(this);
 
-        //here we are checking if the user is logged in or not if logged in directly we moove to activitymain2
+        //here we are checking if the user is logged in or not if logged in directly we move to activitymain2
 
         UserIsLoggedIn();
 
@@ -54,20 +57,27 @@ public class MainActivity extends AppCompatActivity {
         phone_number = findViewById(R.id.phone_number);
 
         //storing the verification code here
-        EditText code = findViewById(R.id.Code);
+        code = findViewById(R.id.Code);
 
         //button input here
-        Button verify = findViewById(R.id.verification);
+        verify = findViewById(R.id.verification);
 
         /**
          * we are now setting up an onclick listener on to the button verify
          */
 
-        verify.setOnClickListener(new View.OnClickListener(){
+        verify.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                InitiatePhoneNumberVerification();
+
+                if (verification_id != null){
+                    VerifyPhoneNumberWithCode();
+                }
+                else{
+
+                    InitiatePhoneNumberVerification();
+                }
             }
         });
 
@@ -84,17 +94,39 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onVerificationFailed(@NonNull FirebaseException e) {
+            }
 
+            //This is checking for the code that is sent to the user and the firebase generated code is same or not
+
+
+            @Override
+            public void onCodeSent(@NonNull String Verification_id, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                super.onCodeSent(Verification_id, forceResendingToken);
+
+                //storing the firebase generate code in a string
+                verification_id = Verification_id;
+
+                //change the text of the button to verify code since the code is already sent and verification should be done
+                verify.setText(R.string.ButtonChangeOnCodeSent);
             }
         };
     }
 
+    private void VerifyPhoneNumberWithCode() {
+        PhoneAuthCredential credentials = PhoneAuthProvider.getCredential(verification_id, code.getText().toString());
+        SignInWithPhoneAuthCredentials(credentials);
+    }
+
+
     private void SignInWithPhoneAuthCredentials(PhoneAuthCredential phoneAuthCredential) {
+        /**
+         * we here set an on complete listener to check if the phone number verification is complete or not
+         */
         FirebaseAuth.getInstance().signInWithCredential(phoneAuthCredential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 //task is to check the if the task is i/e the log in is successful or not
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
                     UserIsLoggedIn();
                 }
             }
@@ -103,18 +135,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void UserIsLoggedIn() {
         //this function will check if the user is logged in or not if he is already logged in then we simply move on to the other steps
-        FirebaseUser user =  FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if(user != null){
-            startActivity(new Intent(getApplicationContext(),MainpageActivity2.class));
+        if (user != null) {
+            startActivity(new Intent(getApplicationContext(), MainpageActivity2.class));
             finish();
-            return;
         }
     }
 
     private void InitiatePhoneNumberVerification() {
 
         //initializing the FirebaseAuth instance
+
         FirebaseAuth authentication = FirebaseAuth.getInstance();
 
         /**
@@ -131,5 +163,14 @@ public class MainActivity extends AppCompatActivity {
         PhoneAuthProvider.verifyPhoneNumber(options);      //passing the phone number to phone auth provider to request verification
 
     }
+
+    /**
+     * The steps to be followed while we are making a phone number verification for an app:
+     * 1. initialize an instance for firebaseauth class
+     * 2. initialize phone auth options and pass in the parameters to verify the phone number
+     * 3. now create ad fill all the methods that callback suggest s
+     * 4. call backs uses phoneauthprovider.onverificationstatuschanged callbacks object
+     * an override the necessary functions.
+     */
 
 }
